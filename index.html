@@ -181,6 +181,27 @@
   .fotos.lado .legenda { font-size: 3.1cqw; }
   .fotos.uma .legenda { font-size: 4cqw; margin-top: 4cqh; }
 
+  /* ---------- celular em pé: uma página que parece um livro inteiro ---------- */
+  body.retrato .palco { position: relative; left: -1.6%; }
+  /* contracapa de couro por trás */
+  body.retrato .palco::before {
+    content: ""; position: absolute; z-index: -2; top: 1.4%; bottom: -2.2%; left: 1.5%; right: -3.2%;
+    background: #3a1210 url("recursos/capa.jpg") center / cover; border-radius: 2px 5px 5px 2px;
+  }
+  /* borda das folhas empilhadas */
+  body.retrato .palco::after {
+    content: ""; position: absolute; z-index: -1; top: 0.6%; bottom: -1.1%; left: 0.6%; right: -1.7%;
+    background:
+      repeating-linear-gradient(to right, transparent 0 1px, rgba(120,90,50,.28) 1px 2px) right / 1.6% 100% no-repeat,
+      repeating-linear-gradient(to bottom, transparent 0 1px, rgba(120,90,50,.28) 1px 2px) bottom / 100% 1.1% no-repeat,
+      #e4d6b8;
+    border-radius: 1px 3px 3px 1px;
+  }
+  /* sem a sombra da lombada "cortada": só uma costura suave à esquerda */
+  body.retrato .pagina.esq .papel-sombra, body.retrato .pagina.dir .papel-sombra {
+    background: linear-gradient(to right, rgba(60,35,15,.16), transparent 3.5%);
+  }
+
   /* ---------- rabiscos à mão ---------- */
   :root { --caneta: #3b2a20; --caneta-v: #b3323b; }
   body.preto { --caneta: #eee4d2; --caneta-v: #e57b84; }
@@ -523,12 +544,14 @@ window.iniciarAlbum = function () {
   const palco = document.getElementById("palco");
   const retrato = () => innerWidth < 700 && innerHeight > innerWidth;
   const modoRetrato = retrato();
+  document.body.classList.toggle("retrato", modoRetrato);
   const proporcao = modoRetrato ? 0.68 : 500 / 647; // largura / altura de uma página
+  const folga = modoRetrato ? 0.95 : 1; // no celular sobra espaço para a borda das folhas
   function medir() {
     const reserva = innerHeight < 500 ? 78 : 110; // espaço dos botões
     const h = innerHeight - reserva;
     palco.style.width = modoRetrato
-      ? Math.min(innerWidth * 0.94, h * proporcao) + "px"
+      ? Math.min(innerWidth * 0.94 * folga, h * proporcao * folga) + "px"
       : Math.min(innerWidth * 0.96, h * proporcao * 2) + "px";
   }
   medir();
