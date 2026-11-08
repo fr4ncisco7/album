@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Álbum</title>
+<style>
+  /* fontes guardadas na pasta recursos/fontes (funciona sem internet) */
+  @font-face { font-family: "Cinzel"; font-weight: 500; src: url("recursos/fontes/cinzel-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Cinzel"; font-weight: 700; src: url("recursos/fontes/cinzel-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 400; src: url("recursos/fontes/cormorant-garamond-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 400; font-style: italic; src: url("recursos/fontes/cormorant-garamond-latin-400-italic.woff2") format("woff2"); }
+  @font-face { font-family: "Cormorant Garamond"; font-weight: 500; src: url("recursos/fontes/cormorant-garamond-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Homemade Apple"; src: url("recursos/fontes/homemade-apple-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Caveat"; font-weight: 500; src: url("recursos/fontes/caveat-latin-500-normal.woff2") format("woff2"); }
+
+  :root {
+    --mesa-1: #1c120e;
+    --mesa-2: #0b0706;
+    --ouro-claro: #f7e7a1;
+    --ouro: #c99a3c;
+    --ouro-escuro: #7a5418;
+    --papel: #efe4cc;
+    --papel-borda: #d9c7a1;
+    --tinta: #3a2a1e;
+    --canto: #2b1c15;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background:
+      radial-gradient(ellipse at 50% 40%, rgba(120, 70, 40, .18), transparent 60%),
+      radial-gradient(ellipse at center, var(--mesa-1) 0%, var(--mesa-2) 100%);
+    color: #e9dcc0;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  /* poeira suave sobre a mesa */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---------- livro ---------- */
+  .palco {
+    width: min(96vw, calc((100svh - 110px) * 1.546));
+    transition: transform .7s cubic-bezier(.4, .1, .2, 1);
+    filter: drop-shadow(0 25px 35px rgba(0,0,0,.55));
+  }
+  #livro { margin: 0 auto; }
+
+  .pagina { background: var(--papel); overflow: hidden; container-type: size; }
+  .miolo {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 8cqw 8cqw 9cqw;
+  }
+
+  /* papel creme envelhecido */
+  .papel {
+    background-color: var(--papel);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.6' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .45  0 0 0 0 .33  0 0 0 0 .2  0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse at 50% 45%, rgba(255,250,235,.5), transparent 70%),
+      radial-gradient(ellipse at 100% 100%, rgba(150,105,50,.22), transparent 45%),
+      radial-gradient(ellipse at 0% 0%, rgba(150,105,50,.16), transparent 40%);
+    color: var(--tinta);
+  }
+  /* sombra da lombada */
+  .pagina.esq .papel-sombra, .pagina.dir .papel-sombra { position: absolute; inset: 0; pointer-events: none; }
+  .pagina.esq .papel-sombra { background: linear-gradient(to left, rgba(60,35,15,.28), transparent 9%); }
+  .pagina.dir .papel-sombra { background: linear-gradient(to right, rgba(60,35,15,.28), transparent 9%); }
+
+  /* variação: páginas pretas de álbum antigo */
+  body.preto .papel {
+    background-color: #1d1a18;
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E");
+    color: #ece4d6;
+  }
+  body.preto { --canto: #0d0b0a; }
+
+  /* ---------- capa ---------- */
+  .capa, .contracapa { background: #3a1210; }
+  .couro { position: absolute; inset: 0; background: url("recursos/capa.jpg") center / 100% 100% no-repeat; }
+  .contracapa .couro { transform: scaleX(-1); }
+  .capa .miolo { align-items: center; justify-content: center; text-align: center; padding: 0 14cqw; }
+  .ouro {
+    background: linear-gradient(175deg, var(--ouro-claro) 0%, var(--ouro) 38%, #f2d888 52%, var(--ouro) 64%, var(--ouro-escuro) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 -1px 0 rgba(0,0,0,.65)) drop-shadow(0 1px 0 rgba(255,220,150,.18));
+  }
+  .capa-nome1 { font-family: "Cinzel", serif; font-weight: 700; font-size: 11.5cqw; letter-spacing: .14em; line-height: 1.05; margin-right: -.14em; }
+  .capa-nome2 { font-family: "Cinzel", serif; font-weight: 500; font-size: 5.6cqw; letter-spacing: .32em; margin-top: 2.4cqw; margin-right: -.32em; }
+  .tat { display: block; height: auto; filter: drop-shadow(0 -1px 0 rgba(0,0,0,.6)) drop-shadow(0 1px 0 rgba(255,220,150,.15)); }
+  .tat-passaro { width: 23cqw; margin-bottom: 1cqw; transform: translateX(2cqw); }
+  .tat-galho { width: 44cqw; margin-top: 1cqw; }
+  .com-tat .filete { margin: 4cqw 0; }
+  .capa-sub { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 4.6cqw; letter-spacing: .08em; margin-top: 5cqw; }
+  .filete { display: flex; align-items: center; gap: 2.5cqw; width: 62cqw; margin: 6cqw 0; }
+  .filete::before, .filete::after { content: ""; flex: 1; height: max(1px, .35cqw); background: linear-gradient(90deg, transparent, var(--ouro) 30%, var(--ouro) 70%, transparent); opacity: .85; }
+  .filete span { font-size: 4.2cqw; line-height: 1; }
+  .dica {
+    position: absolute; bottom: 7cqh; left: 0; right: 0; text-align: center;
+    font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 3.6cqw; color: rgba(240,215,160,.55);
+    animation: pulsar 2.6s ease-in-out infinite;
+  }
+  @keyframes pulsar { 50% { opacity: .35; } }
+
+  /* guardas (verso da capa) */
+  .guarda {
+    background-color: #4a1714;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(255,200,150,.06) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 80%, rgba(255,200,150,.05) 0 2px, transparent 3px),
+      repeating-linear-gradient(45deg, rgba(0,0,0,.08) 0 2px, transparent 2px 7px),
+      repeating-linear-gradient(-45deg, rgba(0,0,0,.08) 0 2px, transparent 2px 7px);
+    background-size: 37px 41px, 53px 47px, auto, auto;
+  }
+  .guarda .miolo { padding: 4.5cqw; }
+  .guarda .moldura-ouro { flex: 1; border: max(1px, .4cqw) solid rgba(201,154,60,.55); outline: max(1px,.2cqw) solid rgba(201,154,60,.3); outline-offset: 1.6cqw; }
+
+  /* ---------- páginas de texto ---------- */
+  .texto { align-items: center; justify-content: center; text-align: center; }
+  .manuscrito { font-family: "Homemade Apple", "Caveat", cursive; line-height: 1.75; }
+  .dedicatoria { font-size: 4.6cqw; max-width: 82cqw; white-space: pre-line; }
+  .ornamento { font-family: "Cormorant Garamond", serif; font-size: 6cqw; opacity: .45; margin: 6cqw 0 0; }
+  .carta { justify-content: center; text-align: left; padding: 10cqw 11cqw 12cqw; }
+  .carta .corpo { font-size: 4.1cqw; white-space: pre-line; line-height: 1.9; }
+  .carta .assin { font-size: 4.1cqw; text-align: right; margin-top: 7cqw; white-space: pre-line; line-height: 1.9; }
+  .cap-num { font-family: "Cinzel", serif; font-size: 4cqw; letter-spacing: .3em; margin-right: -.3em; opacity: .55; }
+  .cap-titulo { font-size: 9cqw; line-height: 1.5; margin-top: 3cqw; }
+  .cap-filete { display: flex; align-items: center; gap: 3cqw; width: 50cqw; margin-top: 3cqw; opacity: .5; font-size: 5cqw; }
+  .cap-filete::before, .cap-filete::after { content: ""; flex: 1; height: 1px; background: currentColor; }
+  .cap-frase { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 4.6cqw; line-height: 1.5; margin-top: 5cqw; max-width: 70cqw; white-space: pre-line; opacity: .8; }
+  .continua { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: 7cqw; opacity: .7; }
+
+  .num { position: absolute; bottom: 4.2cqw; left: 0; right: 0; text-align: center; font-family: "Cormorant Garamond", serif; font-size: 3cqw; opacity: .45; letter-spacing: .1em; }
+
+  /* ---------- fotos ---------- */
+  .fotos { justify-content: space-evenly; padding-top: 6cqw; padding-bottom: 10cqw; }
+  .slot { display: flex; flex-direction: column; align-items: center; }
+  .area { display: flex; align-items: center; justify-content: center; }
+  .foto {
+    --r: 1.333;
+    position: relative;
+    width: min(78cqw, 30cqh * var(--r));
+    aspect-ratio: var(--r);
+    background: #fbf7ee;
+    padding: min(2.2cqw, 8px);
+    box-shadow: 0 1px 2px rgba(0,0,0,.25), 0 6px 14px rgba(60,35,15,.22);
+    transform: rotate(var(--rot, 0deg));
+  }
+  .fotos.uma .foto { width: min(80cqw, 64cqh * var(--r)); }
+  .foto img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  body.vintage .foto img { filter: sepia(.28) saturate(.9) contrast(1.04) brightness(.98); }
+  .foto.vazia { background: transparent; box-shadow: none; border: 1.5px dashed currentColor; opacity: .45; display: flex; align-items: center; justify-content: center; text-align: center; }
+  .foto.vazia small { font-family: "Cormorant Garamond", serif; font-style: italic; font-size: max(11px, 3.6cqw); padding: 0 6%; }
+  /* cantoneiras */
+  .canto { position: absolute; width: min(13%, 46px); aspect-ratio: 1; background: var(--canto); z-index: 2;
+    background-image: linear-gradient(135deg, rgba(255,255,255,.14), transparent 55%); }
+  .canto.a { top: -3px; left: -3px; clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .canto.b { top: -3px; right: -3px; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+  .canto.c { bottom: -3px; left: -3px; clip-path: polygon(0 0, 0 100%, 100% 100%); }
+  .canto.d { bottom: -3px; right: -3px; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+  .foto.vazia .canto { display: none; }
+  .legenda { font-family: "Homemade Apple", "Caveat", cursive; font-size: 3.5cqw; line-height: 1.5; margin-top: 2.6cqh; text-align: center; max-width: 90%; min-height: 1.5em; }
+  .fotos.uma { justify-content: center; }
+  /* duas fotos em pé: lado a lado */
+  .fotos.lado { flex-direction: row; align-items: center; justify-content: space-evenly; padding-left: 4cqw; padding-right: 4cqw; }
+  .fotos.lado .slot { width: 43cqw; }
+  .fotos.lado .foto { width: min(39cqw, 60cqh * var(--r)); }
+  .fotos.lado .legenda { font-size: 3.1cqw; }
+  .fotos.uma .legenda { font-size: 4cqw; margin-top: 4cqh; }
+
+  /* ---------- rabiscos à mão ---------- */
+  :root { --caneta: #3b2a20; --caneta-v: #b3323b; }
+  body.preto { --caneta: #eee4d2; --caneta-v: #e57b84; }
+  .rabisco { position: absolute; aspect-ratio: 1; z-index: 4; pointer-events: none; overflow: visible;
+    fill: none; stroke: var(--caneta); stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; opacity: .92; }
+  .rabisco .v { stroke: var(--caneta-v); fill: color-mix(in srgb, var(--caneta-v) 22%, transparent); }
+  .rabisco .f { fill: var(--caneta); stroke: none; }
+  .rabisco .v.f { fill: var(--caneta-v); }
+  .rabisco .eco { opacity: .45; stroke-width: 1.6; }
+  /* perto das fotos */
+  .foto .rabisco { width: min(46%, 17cqw); }
+  .rabisco.tl { top: 0; left: 0; transform: translate(-38%, -78%) rotate(-12deg); }
+  .rabisco.tr { top: 0; right: 0; transform: translate(38%, -78%) rotate(10deg); }
+  .rabisco.bl { bottom: 0; left: 0; transform: translate(-42%, 70%) rotate(-8deg); }
+  .rabisco.br { bottom: 0; right: 0; transform: translate(42%, 70%) rotate(8deg); }
+  .fotos.uma .foto .rabisco { width: min(30%, 19cqw); }
+  .fotos.uma .rabisco.tl { transform: translate(-48%, -62%) rotate(-12deg); }
+  .fotos.uma .rabisco.tr { transform: translate(48%, -62%) rotate(10deg); }
+  /* nas páginas de texto */
+  .miolo > .rabisco { width: 13cqw; }
+  .rabisco.ded1 { right: 13cqw; bottom: 14cqh; transform: rotate(12deg); }
+  .rabisco.ded2 { left: 12cqw; top: 13cqh; width: 9cqw; transform: rotate(-14deg); }
+  .rabisco.cap1 { right: 16cqw; top: 22cqh; width: 10cqw; transform: rotate(14deg); }
+  .rabisco.carta1 { left: 9cqw; bottom: 9cqh; width: 15cqw; transform: rotate(-8deg); }
+  .assin .rabisco-inline { display: inline-block; width: 1.4em; height: 1.4em; position: relative; vertical-align: -0.35em; margin-left: .3em; }
+  .assin .rabisco-inline .rabisco { position: static; width: 100%; height: 100%; }
+
+  /* ---------- controles ---------- */
+  .controles { display: flex; align-items: center; gap: 22px; font-size: 17px; letter-spacing: .06em; color: rgba(233,215,175,.75); z-index: 5; }
+  .controles button {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(201,154,60,.45);
+    background: rgba(40,22,16,.6); color: var(--ouro-claro); font-size: 22px; line-height: 1; cursor: pointer;
+    transition: background .2s, opacity .2s;
+  }
+  .controles button:hover { background: rgba(90,50,30,.7); }
+  .controles button:disabled { opacity: .25; cursor: default; }
+  #contador { min-width: 120px; text-align: center; font-style: italic; }
+
+  /* abertura suave */
+  .palco, .controles { opacity: 0; animation: surgir 1.2s .15s ease forwards; }
+  @keyframes surgir { from { opacity: 0; translate: 0 12px; } to { opacity: 1; translate: 0 0; } }
+</style>
+<script>window.PROTEGIDO = true;</script>
+<style>
+  body.trancado .palco, body.trancado .controles { visibility: hidden; }
+  #portao {
+    position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at 50% 40%, rgba(120,70,40,.18), transparent 60%), radial-gradient(ellipse at center, #1c120e 0%, #0b0706 100%);
+    transition: opacity .9s ease;
+  }
+  #portao.saindo { opacity: 0; pointer-events: none; }
+  #portao .caixa { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; text-align: center; width: min(92vw, 380px); }
+  #portao .mini {
+    width: 120px; aspect-ratio: 792 / 1024; border-radius: 3px; background: url("recursos/capa.jpg") center / 100% 100% no-repeat;
+    box-shadow: 0 18px 30px rgba(0,0,0,.6); transform: rotate(-3deg); position: relative;
+  }
+  #portao .mini::after { content: "✦"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #d9b25e; text-shadow: 0 -1px 0 rgba(0,0,0,.6); }
+  #portao h1 { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 400; font-size: 27px; color: #ecdcb8; line-height: 1.25; }
+  #portao .dica-senha { font-family: "Cormorant Garamond", Georgia, serif; font-size: 17px; color: rgba(233,215,175,.62); margin-top: -10px; }
+  #portao form { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+  #portao input {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(201,154,60,.55);
+    color: #f3e6c4; font-family: "Cormorant Garamond", Georgia, serif; font-size: 22px; text-align: center; padding: 8px 4px; outline: none;
+    letter-spacing: .08em;
+  }
+  #portao input:focus { border-bottom-color: #e2c27a; }
+  #portao button {
+    font-family: "Cinzel", Georgia, serif; letter-spacing: .25em; font-size: 14px; color: #f7e7a1; cursor: pointer;
+    background: rgba(40,22,16,.6); border: 1px solid rgba(201,154,60,.5); border-radius: 999px; padding: 11px 30px 11px 34px;
+  }
+  #portao button:disabled { opacity: .5; }
+  #portao .erro { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-size: 17px; color: #e39a9f; min-height: 1.3em; }
+  #portao .tremer { animation: tremer .45s; }
+  @keyframes tremer { 20%, 60% { transform: translateX(-8px); } 40%, 80% { transform: translateX(8px); } }
+</style>
+<script>
+(function () {
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const normalizar = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  let meta, chave;
+
+  async function derivar(senha) {
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(normalizar(senha)), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(meta.salt), iterations: meta.iter, hash: "SHA-256" },
+      base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  }
+  async function abrir(buf) {
+    const u = new Uint8Array(buf);
+    return crypto.subtle.decrypt({ name: "AES-GCM", iv: u.slice(0, 12) }, chave, u.slice(12));
+  }
+  async function baixar(url) {
+    const r = await fetch(url, { cache: "no-cache" });
+    if (!r.ok) throw new Error("não encontrado: " + url);
+    return abrir(await r.arrayBuffer());
+  }
+  const rodar = async url => { (0, eval)(new TextDecoder().decode(await baixar(url))); };
+  const tipos = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif" };
+
+  async function tentar(senha) {
+    chave = await derivar(senha);
+    await abrir(b64(meta.teste)); // dá erro se a senha estiver errada
+    return true;
+  }
+
+  async function entrar(senha, lembrar) {
+    await tentar(senha);
+    try { if (lembrar) localStorage.setItem("album-senha", senha); } catch (e) {}
+    await rodar("dados/album.bin");
+    try { await rodar("dados/tatuagens.bin"); } catch (e) {}
+    window.carregarFoto = async src => {
+      const ext = (src.split(".").pop() || "").toLowerCase();
+      const dados = await baixar("dados/" + src + ".bin");
+      return URL.createObjectURL(new Blob([dados], { type: tipos[ext] || "image/jpeg" }));
+    };
+    document.body.classList.remove("trancado");
+    window.iniciarAlbum();
+    const p = document.getElementById("portao");
+    p.classList.add("saindo");
+    setTimeout(() => p.remove(), 1000);
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    document.body.classList.add("trancado");
+    const p = document.createElement("div");
+    p.id = "portao";
+    p.innerHTML = `<div class="caixa">
+        <div class="mini"></div>
+        <h1>Um álbum guardado<br>só para você</h1>
+        <div class="dica-senha"></div>
+        <form autocomplete="off">
+          <input type="password" inputmode="text" placeholder="senha" aria-label="senha" autocapitalize="off" autocorrect="off" spellcheck="false">
+          <button type="submit">ABRIR</button>
+          <div class="erro"></div>
+        </form></div>`;
+    document.body.appendChild(p);
+    const form = p.querySelector("form"), input = p.querySelector("input"), btn = p.querySelector("button"), erro = p.querySelector(".erro");
+
+    try { meta = await fetch("dados/meta.json", { cache: "no-cache" }).then(r => r.json()); }
+    catch (e) { erro.textContent = "não consegui carregar o álbum… tenta atualizar a página"; return; }
+    if (meta.dica) p.querySelector(".dica-senha").textContent = meta.dica;
+
+    // se ela já abriu antes neste aparelho, entra direto
+    try {
+      const salva = localStorage.getItem("album-senha");
+      if (salva) { await entrar(salva, false); return; }
+    } catch (e) { try { localStorage.removeItem("album-senha"); } catch (_) {} }
+
+    input.focus();
+    form.addEventListener("submit", async ev => {
+      ev.preventDefault();
+      if (!input.value.trim()) return;
+      btn.disabled = true; erro.textContent = "";
+      try { await entrar(input.value, true); }
+      catch (e) {
+        btn.disabled = false;
+        erro.textContent = "não é essa… tenta de novo ♡";
+        form.classList.remove("tremer"); void form.offsetWidth; form.classList.add("tremer");
+        input.select();
+      }
+    });
+  });
+})();
+</script>
+
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <filter id="mao" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7"/>
+      <feDisplacementMap in="SourceGraphic" scale="3.2"/>
+    </filter>
+  </svg>
+  <div class="palco" id="palco"><div id="livro"></div></div>
+  <div class="controles">
+    <button id="ant" aria-label="Página anterior">‹</button>
+    <span id="contador">capa</span>
+    <button id="prox" aria-label="Próxima página">›</button>
+  </div>
+
+
+<script src="recursos/page-flip.browser.js"></script>
+<script src="recursos/desenhos.js"></script>
+
+<script>
+// O álbum é montado por iniciarAlbum(). Na versão com senha, ele só roda depois do desbloqueio.
+window.iniciarAlbum = function () {
+  const A = Object.assign({
+    nome: "", subtitulo: "", estiloPagina: "creme", filtroVintage: true, fotosPorPagina: 2,
+    dedicatoria: "", fotos: [], cartaFinal: "", assinatura: "", continua: "", rabiscos: true, tatuagensNaCapa: true
+  }, window.ALBUM || {});
+  const R = (nome, classe) => (A.rabiscos && window.rabisco) ? window.rabisco(nome, classe) : "";
+
+  document.title = A.nome || "Álbum";
+  if (A.estiloPagina === "preto") document.body.classList.add("preto");
+  if (A.filtroVintage) document.body.classList.add("vintage");
+
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const livro = document.getElementById("livro");
+  const paginas = [];
+
+  function pagina(classes, html, opts = {}) {
+    const el = document.createElement("div");
+    el.className = "pagina " + classes;
+    if (opts.dura) el.dataset.density = "hard";
+    el.innerHTML = html;
+    paginas.push(el);
+    return el;
+  }
+
+  // tatuagem em vetor, gravada em dourado
+  const T = window.TATUAGENS || {};
+  function tatuagem(nome, classe) {
+    const t = T[nome]; if (!t) return "";
+    const id = "ouro-" + nome + "-" + Math.random().toString(36).slice(2, 7);
+    return `<svg class="tat ${classe}" viewBox="${t.vb}" style="aspect-ratio:${t.ratio}" aria-hidden="true">
+      <defs><linearGradient id="${id}" x1="0" y1="0" x2="0.25" y2="1">
+        <stop offset="0" stop-color="#f7e7a1"/><stop offset=".38" stop-color="#c99a3c"/>
+        <stop offset=".52" stop-color="#f2d888"/><stop offset=".66" stop-color="#c99a3c"/><stop offset="1" stop-color="#7a5418"/>
+      </linearGradient></defs><path fill="url(#${id})" fill-rule="evenodd" d="${t.d}"/></svg>`;
+  }
+  const comTat = A.tatuagensNaCapa && T.passaro;
+
+  // ----- capa
+  const partes = (A.nome || "").trim().split(/\s+/);
+  const primeiro = partes.shift() || "";
+  const resto = partes.join(" ");
+  pagina("capa", `
+    <div class="couro"></div>
+    <div class="miolo ${comTat ? "com-tat" : ""}">
+      ${comTat ? tatuagem("passaro", "tat-passaro") : ""}
+      <div class="filete ouro"><span class="ouro">✦</span></div>
+      <div class="capa-nome1 ouro">${esc(primeiro)}</div>
+      ${resto ? `<div class="capa-nome2 ouro">${esc(resto)}</div>` : ""}
+      <div class="filete ouro"><span class="ouro">✦</span></div>
+      ${A.subtitulo ? `<div class="capa-sub ouro">${esc(A.subtitulo)}</div>` : ""}
+      ${comTat ? tatuagem("galho", "tat-galho") : ""}
+      <div class="dica">toque para abrir</div>
+    </div>`, { dura: true });
+
+  // ----- guarda + dedicatória
+  pagina("guarda", `<div class="miolo"><div class="moldura-ouro"></div></div>`);
+  if (A.dedicatoria) {
+    pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo texto">
+      <div class="manuscrito dedicatoria">${esc(A.dedicatoria)}</div>
+      <div class="ornamento">❦</div>${R("coracao", "ded1")}${R("estrelas", "ded2")}</div>`);
+  }
+
+  // ----- fotos agrupadas em páginas (com capítulos)
+  const blocos = [];
+  let atual = [];
+  const porPag = Math.max(1, Math.min(2, Number(A.fotosPorPagina) || 2));
+  const fechar = () => { if (atual.length) { blocos.push({ fotos: atual }); atual = []; } };
+  A.fotos.forEach(f => {
+    if (f.capitulo !== undefined) { fechar(); blocos.push({ capitulo: f }); return; }
+    if (f.sozinha) { fechar(); blocos.push({ fotos: [f] }); return; }
+    atual.push(f);
+    if (atual.length === porPag) fechar();
+  });
+  fechar();
+
+  const romanos = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+  let n = 0, cap = 0;
+  blocos.forEach(b => {
+    if (b.capitulo) {
+      const c = b.capitulo;
+      pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo texto capitulo">
+        <div class="cap-num">${romanos[cap++] || cap}</div>
+        <div class="manuscrito cap-titulo">${esc(c.capitulo)}</div>
+        <div class="cap-filete"><span>❦</span></div>
+        ${c.frase ? `<div class="cap-frase">${esc(c.frase)}</div>` : ""}${R(c.desenho || "coracoes", "cap1")}</div>`);
+      return;
+    }
+    const g = b.fotos;
+    const slots = g.map((f, i) => {
+      n++;
+      // onde o rabisco fica: alterna os cantos para não ficar repetitivo
+      const lugar = g.length === 1 ? (n % 2 ? "tr" : "tl") : (i === 0 ? "tl" : "tr");
+      const rot = (((n * 37) % 7) - 3) * 0.55; // leve inclinação, sempre igual para a mesma foto
+      return `<div class="slot"><div class="area">
+        <div class="foto" style="--rot:${rot}deg" data-src="fotos/${esc(f.arquivo)}" data-nome="${esc(f.arquivo)}">
+          <span class="canto a"></span><span class="canto b"></span><span class="canto c"></span><span class="canto d"></span>
+          ${f.desenho ? R(f.desenho, lugar) : ""}
+        </div></div>
+        <div class="legenda">${esc(f.legenda || "")}</div></div>`;
+    }).join("");
+    pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo fotos ${g.length === 1 ? "uma" : ""}">${slots}</div>`);
+  });
+
+  // ----- carta e "continua"
+  if (A.cartaFinal) {
+    pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo carta">
+      <div class="manuscrito corpo">${esc(A.cartaFinal)}</div>
+      ${A.assinatura ? `<div class="manuscrito assin">${esc(A.assinatura)}<span class="rabisco-inline">${R("coracao")}</span></div>` : ""}
+      ${R("coracoes", "carta1")}</div>`);
+  }
+  if (A.continua) {
+    pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo texto"><div class="continua">${esc(A.continua)}</div></div>`);
+  }
+  // o miolo precisa ter número par de páginas para fechar certinho
+  const internas = paginas.length - 1; // sem a capa
+  if ((internas + 1) % 2 !== 0) pagina("papel conteudo", `<div class="papel-sombra"></div><div class="miolo"></div>`);
+  pagina("guarda", `<div class="miolo"><div class="moldura-ouro"></div></div>`);
+  pagina("contracapa", `<div class="couro"></div>`, { dura: true });
+
+  // numeração e lado (esq/dir) das páginas de conteúdo
+  paginas.forEach((p, i) => {
+    p.classList.add(i % 2 === 1 ? "esq" : "dir");
+    if (p.querySelector(".fotos")) p.querySelector(".miolo").insertAdjacentHTML("beforeend", `<div class="num">${i}</div>`);
+    livro.appendChild(p);
+  });
+
+  // carrega as fotos (mostra um aviso se o arquivo não existir)
+  document.querySelectorAll(".foto").forEach(box => {
+    const img = new Image();
+    img.alt = box.dataset.nome;
+    img.onload = () => {
+      const r = img.naturalWidth / img.naturalHeight;
+      box.style.setProperty("--r", r.toFixed(4));
+      box.dataset.r = r;
+      box.appendChild(img);
+      // se as duas fotos da página forem "em pé", coloca lado a lado
+      const pag = box.closest(".fotos");
+      const todas = [...pag.querySelectorAll(".foto")];
+      if (todas.length === 2 && todas.every(b => b.dataset.r && Number(b.dataset.r) < 0.95)) pag.classList.add("lado");
+    };
+    img.onerror = () => {
+      box.classList.add("vazia");
+      box.insertAdjacentHTML("beforeend", `<small>coloque <b>${esc(box.dataset.nome)}</b><br>na pasta “fotos”</small>`);
+    };
+    // na versão com senha, carregarFoto devolve a foto já descriptografada
+    Promise.resolve((window.carregarFoto || (s => s))(box.dataset.src))
+      .then(url => { img.src = url; }, () => img.onerror());
+  });
+
+  // ----- livro
+  // ----- tamanho do livro conforme a tela
+  // celular em pé: uma página por vez, um pouco mais alta para aproveitar a tela
+  // computador / celular deitado: livro aberto com duas páginas
+  const palco = document.getElementById("palco");
+  const retrato = () => innerWidth < 700 && innerHeight > innerWidth;
+  const modoRetrato = retrato();
+  const proporcao = modoRetrato ? 0.68 : 500 / 647; // largura / altura de uma página
+  function medir() {
+    const reserva = innerHeight < 500 ? 78 : 110; // espaço dos botões
+    const h = innerHeight - reserva;
+    palco.style.width = modoRetrato
+      ? Math.min(innerWidth * 0.94, h * proporcao) + "px"
+      : Math.min(innerWidth * 0.96, h * proporcao * 2) + "px";
+  }
+  medir();
+  if (innerHeight < 500) document.body.style.gap = "8px";
+
+  const pf = new St.PageFlip(livro, {
+    width: 500, height: Math.round(500 / proporcao),
+    size: "stretch",
+    minWidth: modoRetrato ? 250 : 120, maxWidth: 1000, minHeight: 150, maxHeight: 1400,
+    showCover: true,
+    usePortrait: modoRetrato,
+    maxShadowOpacity: 0.45,
+    mobileScrollSupport: false,
+    flippingTime: 900,
+  });
+  pf.loadFromHTML(livro.querySelectorAll(".pagina"));
+
+  // se girar o celular, refaz o livro na mesma página
+  try { const p = Number(sessionStorage.getItem("pagina-album")); if (p > 0) pf.turnToPage(p); sessionStorage.removeItem("pagina-album"); } catch (e) {}
+  let trocaTimer;
+  addEventListener("resize", () => {
+    clearTimeout(trocaTimer);
+    trocaTimer = setTimeout(() => {
+      if (retrato() !== modoRetrato) {
+        try { sessionStorage.setItem("pagina-album", pf.getCurrentPageIndex()); } catch (e) {}
+        location.reload();
+      } else { medir(); pf.update && pf.update(); }
+    }, 250);
+  });
+  const ant = document.getElementById("ant"), prox = document.getElementById("prox"), cont = document.getElementById("contador");
+  const total = pf.getPageCount();
+
+  function atualizar() {
+    const i = pf.getCurrentPageIndex();
+    const paisagem = pf.getOrientation() === "landscape";
+    // centraliza o livro fechado (capa ou contracapa)
+    let dx = 0;
+    if (paisagem && i === 0) dx = -25;
+    if (paisagem && i >= total - 1) dx = 25;
+    palco.style.transform = `translateX(${dx}%)`;
+    ant.disabled = i === 0;
+    prox.disabled = i >= total - 1;
+    if (i === 0) cont.textContent = "capa";
+    else if (i >= total - 1) cont.textContent = "fim";
+    else cont.textContent = paisagem ? `páginas ${i}–${i + 1}` : `página ${i}`;
+  }
+  // abre/fecha já deslizando o livro para o centro
+  function antesDeVirar(dir) {
+    if (pf.getOrientation() !== "landscape") return;
+    const i = pf.getCurrentPageIndex();
+    if (dir > 0 && i === 0) palco.style.transform = "translateX(0%)";
+    if (dir < 0 && i >= total - 1) palco.style.transform = "translateX(0%)";
+  }
+  pf.on("flip", atualizar);
+  pf.on("changeOrientation", atualizar);
+  pf.on("changeState", e => { if (e.data === "flipping" || e.data === "user_fold") {
+    const i = pf.getCurrentPageIndex();
+    if (i === 0 || i >= total - 1) palco.style.transform = "translateX(0%)";
+  }});
+  ant.onclick = () => { antesDeVirar(-1); pf.flipPrev(); };
+  prox.onclick = () => { antesDeVirar(1); pf.flipNext(); };
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") prox.click();
+    if (e.key === "ArrowLeft") ant.click();
+  });
+  atualizar();
+};
+if (!window.PROTEGIDO) window.iniciarAlbum();
+</script>
+</body>
+</html>
