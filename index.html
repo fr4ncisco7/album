@@ -202,6 +202,17 @@
     background: linear-gradient(to right, rgba(60,35,15,.16), transparent 3.5%);
   }
 
+  /* folheador do celular */
+  #livro.folheador { position: relative; width: 100%; perspective: 2200px; touch-action: pan-y pinch-zoom; cursor: pointer; }
+  .folheador .folha { position: absolute; inset: 0; transform-origin: left center; transform-style: preserve-3d; will-change: transform; }
+  .folheador .frente, .folheador .verso { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .folheador .verso { transform: rotateY(180deg); }
+  .folheador .verso::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to left, rgba(60,35,15,.22), transparent 25%); }
+  .folheador .folha.virada { transform: rotateY(-180deg); }
+  .folheador .sombra-giro { position: absolute; inset: 0; z-index: 9; pointer-events: none; opacity: 0;
+    background: linear-gradient(to left, rgba(40,20,8,.32), rgba(40,20,8,.08) 45%, transparent 70%); }
+  .folheador .capa .sombra-giro, .folheador .contracapa .sombra-giro { background: linear-gradient(to left, rgba(0,0,0,.45), transparent 70%); }
+
   /* ---------- rabiscos à mão ---------- */
   :root { --caneta: #3b2a20; --caneta-v: #b3323b; }
   body.preto { --caneta: #eee4d2; --caneta-v: #e57b84; }
@@ -385,6 +396,7 @@
 
 <script src="recursos/page-flip.browser.js"></script>
 <script src="recursos/desenhos.js"></script>
+<script src="recursos/folheador.js"></script>
 
 <script>
 // O álbum é montado por iniciarAlbum(). Na versão com senha, ele só roda depois do desbloqueio.
@@ -557,7 +569,9 @@ window.iniciarAlbum = function () {
   medir();
   if (innerHeight < 500) document.body.style.gap = "8px";
 
-  const pf = new St.PageFlip(livro, {
+  // celular em pé: folheador próprio (página gira pela lombada); senão, livro aberto
+  if (modoRetrato) livro.style.aspectRatio = String(proporcao);
+  const pf = modoRetrato ? window.Folheador(livro, livro.querySelectorAll(".pagina")) : new St.PageFlip(livro, {
     width: 500, height: Math.round(500 / proporcao),
     size: "stretch",
     minWidth: modoRetrato ? 250 : 120, maxWidth: 1000, minHeight: 150, maxHeight: 1400,
@@ -567,7 +581,7 @@ window.iniciarAlbum = function () {
     mobileScrollSupport: false,
     flippingTime: 900,
   });
-  pf.loadFromHTML(livro.querySelectorAll(".pagina"));
+  if (!modoRetrato) pf.loadFromHTML(livro.querySelectorAll(".pagina"));
 
   // se girar o celular, refaz o livro na mesma página
   try { const p = Number(sessionStorage.getItem("pagina-album")); if (p > 0) pf.turnToPage(p); sessionStorage.removeItem("pagina-album"); } catch (e) {}
